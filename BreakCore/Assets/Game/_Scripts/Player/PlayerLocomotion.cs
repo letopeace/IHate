@@ -24,11 +24,11 @@ public class PlayerLocomotion
 	private bool inAir = false;
 	private bool isSprinting = false;
 
-	public void Init(PlayerManager manager, Rigidbody rigidbody)
+	public void Init(PlayerManager manager)
 	{
 		playerManager = manager;
 		transform = playerManager.transform;
-		rb = rigidbody;
+		rb = playerManager.rigidbody;
 	}
 
 

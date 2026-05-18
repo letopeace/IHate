@@ -11,20 +11,24 @@ public class PlayerManager : MonoBehaviour
 
 	[SerializeField] private PlayerLocomotion locomotion;
 	[SerializeField] private HeadSimulation headSimulation;
+	[SerializeField] private PlayerWeapon weapon;
 
 	[Header("Links")]
 	public Rigidbody rigidbody;
+	public Transform cameraPivot;
 
 	private void Start()
 	{
-		locomotion.Init(this, rigidbody);
-		headSimulation.Init(this, rigidbody);
+		locomotion.Init(this);
+		headSimulation.Init(this);
+		weapon.Init(this);
 	}
 
 	private void Update()
 	{
 		locomotion.Update();
 		headSimulation.Update();
+		weapon.Update();
 	}
 
 	private void FixedUpdate()
