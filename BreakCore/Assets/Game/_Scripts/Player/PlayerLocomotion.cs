@@ -5,24 +5,24 @@ using UnityEngine;
 [Serializable]
 public class PlayerLocomotion
 {
-	public float Speed;
-	public float SpeedMultiplier = 1.5f;
-	public float JumpStrength;
-	public float JumpCD = 0.2f;
+	public float Speed;						// movement basic speed
+	public float SpeedMultiplier = 1.5f;	// Speed * multiplier | when sprinting
+	public float JumpStrength;				// Jump Height
+	public float JumpCD = 0.2f;				// Wait after jumped
 	public bool onGround = true;
 
 	public LayerMask groundLayer;
-	public Transform Head;
+	public Transform Head;					// Head pivot
 
-	private PlayerManager playerManager;
-	private Transform transform;
+	private PlayerManager playerManager;	// Base PlayerClass
+	private Transform transform;			// Player Transform
 	private Rigidbody rb;
 
-	private float x;
-	private float y;
+	private float mouseX;
+	private float mouseY;
 
-	private bool inAir = false;
-	private bool isSprinting = false;
+	private bool inAir = false;				// true when ready to check ground
+	private bool isSprinting = false;		// true when sprinting
 
 	public void Init(PlayerManager manager)
 	{
@@ -86,13 +86,13 @@ public class PlayerLocomotion
 
 	private void CameraRotation()
 	{
-		x += Input.GetAxis("Mouse X");
-		y += Input.GetAxis("Mouse Y");
+		mouseX += Input.GetAxis("Mouse X");
+		mouseY += Input.GetAxis("Mouse Y");
 
-		y = Mathf.Clamp(y, -90, 90);
+		mouseY = Mathf.Clamp(mouseY, -90, 90);
 
-		Vector3 transformRotation = new Vector3 (0, x, 0);
-		Vector3 headRotation = new Vector3 (-y, x, 0);
+		Vector3 transformRotation = new Vector3 (0, mouseX, 0);
+		Vector3 headRotation = new Vector3 (-mouseY, mouseX, 0);
 
 		transform.eulerAngles = transformRotation;
 		Head.eulerAngles = headRotation;
