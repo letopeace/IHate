@@ -21,7 +21,7 @@ public class PlayerLocomotion
 	private float mouseX;
 	private float mouseY;
 
-	private bool inAir = false;				// true when ready to check ground
+	private bool jumpLock = false;				// true when ready to check ground
 	private bool isSprinting = false;		// true when sprinting
 
 	public void Init(PlayerManager manager)
@@ -50,12 +50,27 @@ public class PlayerLocomotion
 	{
 		float h = Input.GetAxisRaw("Horizontal");
 		float v = Input.GetAxisRaw("Vertical");
+
 		float y = rb.linearVelocity.y;
-		Vector3 dir = (transform.forward * v + transform.right * h);
-		dir.Normalize();
-		dir *= Speed * Time.fixedDeltaTime;
-		dir = isSprinting ? dir * SpeedMultiplier : dir;
-		dir.y = y;
+		y = Mathf.Clamp(y, -800, JumpStrength);
+
+		Vector3 dir = (transform.forward * v + transform.right * h).normalized;
+
+		bool isOnGround = IsOnGround(out RaycastHit hit);
+		if (isOnGround)
+		{
+			dir = Vector3.ProjectOnPlane(dir, hit.normal).normalized;
+		}
+
+		float speed = Speed;
+		if (isSprinting) 
+			speed *= SpeedMultiplier;
+
+
+		dir *= speed;
+		if (jumpLock || !isOnGround)
+			dir.y = y;
+
 		rb.linearVelocity = dir;
 	}
 
@@ -79,8 +94,9 @@ public class PlayerLocomotion
 			dir.y = JumpStrength;
 			rb.linearVelocity = dir;
 			onGround = false;
+			jumpLock = true;
 
-			WaitAndExecute(JumpCD, () => inAir = true);
+			playerManager.StartCoroutine(WaitAndExecute(JumpCD, () => jumpLock = false));
 		}
 	}
 
@@ -100,28 +116,25 @@ public class PlayerLocomotion
 
 	private void GroundCheck()
 	{
-		if (inAir)
+		if (jumpLock) return;
+		
+		if (IsOnGround())
 		{
-			if (IsOnGround())
-			{
-				inAir = false;
-				onGround = true;
-			}
+			onGround = true;
 		}
-
-		if (rb.linearVelocity.y < -0.1f)
+		else
 		{
-			inAir = true;
+			onGround = false;
 		}
 	}
 
 	private bool IsOnGround()
 	{
-		return Physics.Raycast(transform.position + (Vector3.up * 0.02f), Vector3.down, out RaycastHit hit, 0.05f, groundLayer);
+		return Physics.Raycast(transform.position + (Vector3.up * 0.02f), Vector3.down, out RaycastHit hit, 0.12f, groundLayer);
 	}
 	private bool IsOnGround(out RaycastHit hit)
 	{
-		return Physics.Raycast(transform.position, Vector3.down, out hit, groundLayer);
+		return Physics.Raycast(transform.position + (Vector3.up * 0.02f), Vector3.down, out hit, 0.12f, groundLayer);
 	}
 
 	private IEnumerator WaitAndExecute(float duration, Action action)

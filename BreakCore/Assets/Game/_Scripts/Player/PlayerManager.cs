@@ -26,6 +26,8 @@ public class PlayerManager : MonoBehaviour
 		locomotion.Init(this);
 		headSimulation.Init(this);
 		weapon.Init(this);
+
+		Cursor.lockState = CursorLockMode.Locked;
 	}
 
 	private void Update()
